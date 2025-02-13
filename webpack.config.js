@@ -1,6 +1,7 @@
 const path = require('path');
-const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
     mode: 'development',
@@ -31,44 +32,40 @@ module.exports = {
     },
     output: {
         filename: 'bundle.js',
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        clean: true
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html'
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                { 
+                    from: 'src/manifest.json', 
+                    to: '' 
+                },
+                { 
+                    from: 'public/sounds',
+                    to: 'sounds',
+                    noErrorOnMissing: true
+                }
+            ]
+        }),
+        new WorkboxPlugin.GenerateSW({
+            clientsClaim: true,
+            skipWaiting: true,
+            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+            runtimeCaching: [{
+                urlPattern: new RegExp('\\.(?:png|jpg|jpeg|svg|wav)$'),
+                handler: 'CacheFirst'
+            }]
         })
     ],
     devServer: {
         static: {
             directory: path.join(__dirname, 'public'),
         },
-        setupMiddlewares: (middlewares, devServer) => {
-            devServer.app.post('/save-file', (req, res) => {
-                const uploadDir = path.join(__dirname, 'public', 'sounds');
-                
-                // Création du dossier s'il n'existe pas
-                if (!fs.existsSync(uploadDir)){
-                    fs.mkdirSync(uploadDir, { recursive: true });
-                }
-
-                // Gestion de l'upload
-                const busboy = require('busboy');
-                const bb = busboy({ headers: req.headers });
-
-                bb.on('file', (name, file, info) => {
-                    const saveTo = path.join(uploadDir, info.filename);
-                    file.pipe(fs.createWriteStream(saveTo));
-                });
-
-                bb.on('close', () => {
-                    res.writeHead(200, { 'Connection': 'close' });
-                    res.end("Fichier sauvegardé");
-                });
-
-                req.pipe(bb);
-            });
-
-            return middlewares;
-        }
+        hot: true
     }
 };

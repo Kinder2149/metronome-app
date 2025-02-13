@@ -1,0 +1,11 @@
+<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#2196f3"><meta name="description" content="Professional Metronome with Training Mode"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="apple-mobile-web-app-title" content="Pro Metronome"><title>Pro Metronome</title><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" href="/icons/icon-152x152.png"><script defer="defer" src="bundle.js"></script></head><body><div id="root"><div class="container"><div class="visual-indicator"></div><div class="controls"></div></div></div><script>if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/serviceWorker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }</script></body></html>

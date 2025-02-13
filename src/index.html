@@ -2,21 +2,37 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Métronome Professionnel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2196f3">
+    <meta name="description" content="Professional Metronome with Training Mode">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Pro Metronome">
+    
+    <title>Pro Metronome</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
 </head>
 <body>
     <div id="root">
         <div class="container">
-            <div id="metronome-ui"></div>
             <div class="visual-indicator"></div>
-            <div class="controls">
-                <div class="tempo-settings">
-                    <input type="range" id="tempo-slider" min="40" max="250" value="120">
-                    <input type="number" id="tempo-number" min="40" max="250" value="120">
-                </div>
-            </div>
+            <div class="controls"></div>
         </div>
     </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/serviceWorker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

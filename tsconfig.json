@@ -8,10 +8,25 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "esModuleInterop": true,
-        "lib": ["dom", "es6", "dom.iterable", "scripthost"],
+        "lib": [
+            "dom",
+            "es6",
+            "dom.iterable",
+            "scripthost",
+            "webworker",
+            "webworker.importscripts"
+        ],
         "noImplicitAny": true,
-        "removeComments": true
+        "removeComments": true,
+        "typeRoots": [
+            "./node_modules/@types",
+            "./src/typings"
+        ]
     },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules"]
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }
