@@ -1,0 +1,447 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+:root {
+    --primary-color: #2196f3;
+    --secondary-color: #ff9800;
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --success-color: #4CAF50;
+    --danger-color: #f44336;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 500px;
+    width: 100%;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 2rem;
+    text-align: center;
+}
+
+.mode-switcher {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.mode-button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.mode-button.classic {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.mode-button.training {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.mode-button.active {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tempo-settings {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.main-control {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.start-stop-button {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.start-stop-button:hover {
+    opacity: 0.9;
+}
+
+.start-stop-button.stopped {
+    background-color: var(--success-color);
+}
+
+.start-stop-button.running {
+    background-color: var(--danger-color);
+}
+
+#bpm-feedback {
+    margin-top: 1rem;
+    font-weight: bold;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.visual-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ddd;
+    margin: 1rem auto;
+    transition: all 0.2s ease;
+}
+
+.visual-indicator.active {
+    background-color: var(--primary-color);
+    transform: scale(1.5);
+}
+
+#song-list {
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+#song-list h3 {
+    margin: 0 0 10px;
+    color: var(--primary-color);
+}
+.metronome-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.mode-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.mode-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: white;
+}
+
+.mode-button.classic {
+    background-color: var(--primary-color);
+}
+
+.mode-button.training {
+    background-color: var(--secondary-color);
+}
+
+.mode-button.active {
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.main-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.start-stop-button {
+    min-width: 120px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: white;
+}
+
+.start-stop-button.running {
+    background-color: var(--danger-color);
+}
+
+.start-stop-button.stopped {
+    background-color: var(--success-color);
+}
+
+.start-stop-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.add-song-button,
+.next-song-button {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.song-list {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+}
+
+.song-item {
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    background-color: white;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.no-songs {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+/* Ajout aux styles existants */
+
+.mode-switcher {
+   display: flex;
+   justify-content: center;
+   margin-bottom: 2rem;
+   gap: 1rem;
+}
+
+.mode-button {
+   padding: 10px 20px;
+   border: none;
+   border-radius: 6px;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   font-weight: 500;
+   color: white;
+}
+
+.mode-button.classic {
+   background-color: var(--primary-color);
+}
+
+.mode-button.training {
+   background-color: var(--secondary-color);
+}
+
+.mode-button.active {
+   transform: scale(1.1);
+   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.training-controls {
+   display: flex;
+   justify-content: center;
+   gap: 1rem;
+   margin: 1rem 0;
+}
+
+.control-button {
+   padding: 8px 16px;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   background-color: var(--primary-color);
+   color: white;
+}
+
+.control-button:hover {
+   opacity: 0.9;
+}
+
+.control-button.next-song {
+   background-color: var(--secondary-color);
+}
+
+.control-button.add-song {
+   background-color: var(--success-color);
+}
+
+.start-stop-button:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+}
+
+.song-list-container {
+   margin-top: 1rem;
+   padding: 1rem;
+   background-color: rgba(0,0,0,0.05);
+   border-radius: 8px;
+}
+
+.song-item {
+   padding: 0.5rem;
+   margin: 0.5rem 0;
+   background-color: white;
+   border-radius: 4px;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.no-songs {
+   text-align: center;
+   color: #666;
+   font-style: italic;
+   padding: 1rem;
+}
+
+.feedback-container {
+   margin-top: 1rem;
+   padding: 0.5rem;
+   border-radius: 4px;
+   min-height: 2rem;
+}
+
+/* Style pour les contrôles désactivés */
+input:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+}
+.song-list-container {
+   margin-top: 1rem;
+   padding: 1rem;
+   background-color: rgba(0,0,0,0.05);
+   border-radius: 8px;
+   max-height: 300px;
+   overflow-y: auto;
+}
+
+.song-list-container h3 {
+   margin: 0 0 1rem;
+   color: var(--primary-color);
+   text-align: center;
+}
+
+.song-list-container h4 {
+   margin: 0.5rem 0;
+   color: var(--text-color);
+   font-size: 0.9rem;
+   opacity: 0.8;
+}
+
+.current-song, .next-song {
+   margin-bottom: 1rem;
+   padding: 0.5rem;
+   background-color: rgba(255,255,255,0.5);
+   border-radius: 4px;
+}
+
+.song-item {
+   padding: 0.5rem;
+   margin: 0.25rem 0;
+   background-color: white;
+   border-radius: 4px;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+   transition: all 0.3s ease;
+}
+
+.song-item.current {
+   background-color: var(--primary-color);
+   color: white;
+   transform: scale(1.02);
+}
+
+.song-item.next {
+   background-color: var(--secondary-color);
+   color: white;
+}
+
+.all-songs {
+   margin-top: 1rem;
+   padding-top: 1rem;
+   border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.no-songs {
+   text-align: center;
+   color: #666;
+   font-style: italic;
+   padding: 1rem;
+}
+
+.mic-status {
+   margin: 1rem 0;
+   padding: 0.75rem;
+   border-radius: 6px;
+   background-color: rgb(255, 255, 255, 0.8);
+   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mic-status h4 {
+   margin: 0 0 0.5rem 0;
+   color: var(--text-color);
+   font-size: 0.9rem;
+}
+
+.status-indicator {
+   display: flex;
+   align-items: center;
+   gap: 0.5rem;
+   padding: 0.5rem;
+   border-radius: 4px;
+}
+
+.status-indicator.available {
+   background-color: rgba(75, 181, 67, 0.1);
+   color: #2d7c26;
+}
+
+.status-indicator.unavailable {
+   background-color: rgba(244, 67, 54, 0.1);
+   color: #c62828;
+}
+
+.status-indicator .icon {
+   font-size: 1.2rem;
+}
+
+.status-indicator .text {
+   font-size: 0.9rem;
+   line-height: 1.4;
+}

@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es6",
+        "moduleResolution": "node",
+        "strict": true,
+        "sourceMap": true,
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "esModuleInterop": true,
+        "lib": ["dom", "es6", "dom.iterable", "scripthost"],
+        "noImplicitAny": true,
+        "removeComments": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}
