@@ -3,8 +3,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 
+// Récupérer le nom du repository
+const repoName = 'metronome-app';
+
 module.exports = {
-    mode: 'development',
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     entry: './src/index.ts',
     devtool: 'inline-source-map',
     module: {
@@ -33,6 +36,7 @@ module.exports = {
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
+        publicPath: process.env.NODE_ENV === 'production' ? `/${repoName}/` : '/',
         clean: true
     },
     plugins: [
@@ -42,8 +46,19 @@ module.exports = {
         new CopyWebpackPlugin({
             patterns: [
                 { 
-                    from: 'src/manifest.json', 
-                    to: '' 
+                    from: 'src/manifest.json',
+                    to: '',
+                    transform(content) {
+                        const manifest = JSON.parse(content);
+                        manifest.start_url = process.env.NODE_ENV === 'production' ? `/${repoName}/` : '/';
+                        manifest.scope = process.env.NODE_ENV === 'production' ? `/${repoName}/` : '/';
+                        return JSON.stringify(manifest, null, 2);
+                    }
+                },
+                { 
+                    from: 'src/icons',
+                    to: 'icons',
+                    noErrorOnMissing: true
                 },
                 { 
                     from: 'public/sounds',
@@ -66,6 +81,10 @@ module.exports = {
         static: {
             directory: path.join(__dirname, 'public'),
         },
-        hot: true
+        host: '0.0.0.0',
+        port: 8080,
+        hot: true,
+        historyApiFallback: true,
+        https: true
     }
 };
