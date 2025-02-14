@@ -13,14 +13,13 @@
             "es6",
             "dom.iterable",
             "scripthost",
-            "webworker",
-            "webworker.importscripts"
+            "webworker"
         ],
         "noImplicitAny": true,
         "removeComments": true,
         "typeRoots": [
             "./node_modules/@types",
-            "./src/typings"
+            "./src/types"
         ]
     },
     "include": [

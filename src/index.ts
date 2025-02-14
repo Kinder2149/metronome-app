@@ -49,69 +49,161 @@ class Metronome {
         this.setupEventListeners();
         this.setupTrainingEventListeners();
     }
+    
 
-    private initializeUI(): void {
-        const controlsContainer = document.querySelector('.controls') as HTMLDivElement;
+
+    private async initializeUI(): Promise<void> {
+        const container = document.querySelector('.container') as HTMLDivElement;
         
+        // Header avec logo et bouton d'installation
+        const header = document.createElement('div');
+        header.className = 'app-header';
+        
+        // Logo et titre
+        const logoContainer = document.createElement('div');
+        logoContainer.className = 'metronome-logo';
+        logoContainer.innerHTML = `
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35 85 L65 85 L70 20 L50 10 L30 20 Z" 
+                      stroke="currentColor" 
+                      stroke-width="4" 
+                      fill="none"/>
+                <line x1="50" y1="40" x2="65" y2="50" 
+                      stroke="currentColor" 
+                      stroke-width="4" 
+                      stroke-linecap="round"/>
+                <circle cx="50" cy="40" r="3" fill="currentColor"/>
+            </svg>
+            <span>Pro Metronome</span>
+        `;
+    
+        // Bouton d'installation
+        const installButton = document.createElement('button');
+installButton.className = 'install-button';
+installButton.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+    </svg>
+    Ajouter à l'écran d'accueil
+`;
+installButton.style.display = 'none';
+
+// Gestion de l'installation PWA
+let deferredPrompt: any = null;
+
+// Vérifier si l'app est déjà installée
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    installButton.style.display = 'none';
+} else {
+    window.addEventListener('beforeinstallprompt', (e: Event) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installButton.style.display = 'flex';
+        
+        // Afficher une notification pour informer l'utilisateur
+        this.bpmFeedbackElement.textContent = 'Vous pouvez installer l\'application sur votre appareil !';
+        setTimeout(() => {
+            this.bpmFeedbackElement.textContent = '';
+        }, 3000);
+    });
+}
+
+installButton.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    
+    try {
+        await deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult.outcome === 'accepted') {
+            installButton.style.display = 'none';
+            this.bpmFeedbackElement.textContent = 'Installation réussie !';
+            setTimeout(() => {
+                this.bpmFeedbackElement.textContent = '';
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'installation:', error);
+        this.bpmFeedbackElement.textContent = 'Erreur lors de l\'installation. Réessayez plus tard.';
+    }
+    deferredPrompt = null;
+});
+
+// Gérer l'événement d'installation réussie
+window.addEventListener('appinstalled', () => {
+    installButton.style.display = 'none';
+    this.bpmFeedbackElement.textContent = 'Application installée avec succès !';
+    setTimeout(() => {
+        this.bpmFeedbackElement.textContent = '';
+    }, 2000);
+});
+        header.appendChild(logoContainer);
+        header.appendChild(installButton);
+    
+        // Création du conteneur principal des contrôles
+        const controlsContainer = document.createElement('div');
+        controlsContainer.className = 'controls';
+    
         // Mode switcher
         const modeSwitcherContainer = document.createElement('div');
         modeSwitcherContainer.className = 'mode-switcher';
-
+    
         this.classicModeButton = document.createElement('button');
         this.classicModeButton.textContent = 'Classic Mode';
         this.classicModeButton.className = 'mode-button classic active';
-
+    
         this.trainingModeButton = document.createElement('button');
         this.trainingModeButton.textContent = 'Training Mode';
         this.trainingModeButton.className = 'mode-button training';
-
-        // Tempo controls
+    
+        // Contrôles de tempo
         this.tempoSlider = document.createElement('input');
         this.tempoSlider.type = 'range';
         this.tempoSlider.id = 'tempo-slider';
         this.tempoSlider.min = '40';
         this.tempoSlider.max = '250';
         this.tempoSlider.value = '120';
-
+    
         this.tempoNumber = document.createElement('input');
         this.tempoNumber.type = 'number';
         this.tempoNumber.id = 'tempo-number';
         this.tempoNumber.min = '40';
         this.tempoNumber.max = '250';
         this.tempoNumber.value = '120';
-
+    
         const tempoContainer = document.createElement('div');
         tempoContainer.className = 'tempo-settings';
         tempoContainer.appendChild(this.tempoSlider);
         tempoContainer.appendChild(this.tempoNumber);
-
-        // Controls
+    
+        // Boutons de contrôle
         this.startStopButton = document.createElement('button');
         this.startStopButton.className = 'start-stop-button stopped';
         this.startStopButton.textContent = 'Start';
-
+    
         this.nextSongButton = document.createElement('button');
         this.nextSongButton.className = 'control-button next-song';
         this.nextSongButton.textContent = 'Next Song';
         this.nextSongButton.style.display = 'none';
-
+    
         this.addSongButton = document.createElement('button');
         this.addSongButton.className = 'control-button add-song';
         this.addSongButton.textContent = 'Add Song';
         this.addSongButton.style.display = 'none';
-
-        // Feedback elements
+    
+        // Éléments de feedback
         this.bpmFeedbackElement = document.createElement('div');
         this.bpmFeedbackElement.className = 'feedback-container';
-
+    
         this.songListElement = document.createElement('div');
         this.songListElement.className = 'song-list-container';
-
-        // Build UI
+    
+        // Construction de l'interface
         modeSwitcherContainer.appendChild(this.classicModeButton);
         modeSwitcherContainer.appendChild(this.trainingModeButton);
-
-        controlsContainer.innerHTML = '';
+    
+        container.innerHTML = '';
+        container.appendChild(header);
+        
         controlsContainer.appendChild(modeSwitcherContainer);
         controlsContainer.appendChild(tempoContainer);
         controlsContainer.appendChild(this.startStopButton);
@@ -119,7 +211,9 @@ class Metronome {
         controlsContainer.appendChild(this.addSongButton);
         controlsContainer.appendChild(this.bpmFeedbackElement);
         controlsContainer.appendChild(this.songListElement);
-
+    
+        container.appendChild(controlsContainer);
+    
         this.updateButtonStates();
     }
 
