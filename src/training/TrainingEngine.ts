@@ -92,9 +92,8 @@ export class TrainingEngine {
         window.dispatchEvent(new CustomEvent('bpm-detection', {
             detail: {
                 targetBpm: this.targetBpm,
-                detectedBpm: Math.round(detectedBpm),
-                isMatchingBpm: isMatching,
-                accuracy: Math.abs(100 - (Math.abs(this.targetBpm - detectedBpm) / this.targetBpm * 100))
+                detectedBpm: detectedBpm,
+                isMatchingBpm: isMatching
             }
         }));
     }

@@ -271,16 +271,26 @@ window.addEventListener('appinstalled', () => {
         });
         window.addEventListener('bpm-detection', (event: Event) => {
             const customEvent = event as CustomEvent;
-            const { targetBpm, detectedBpm, isMatchingBpm, accuracy } = customEvent.detail;
-        
-            // Créer ou mettre à jour l'élément de feedback BPM
-            const bpmFeedback = document.createElement('div');
+            const { targetBpm, detectedBpm, isMatchingBpm } = customEvent.detail;
+    
+            // Créer le conteneur de feedback s'il n'existe pas
+            let bpmFeedback = this.bpmFeedbackElement.querySelector('.bpm-feedback');
+            if (!bpmFeedback) {
+                bpmFeedback = document.createElement('div');
+                bpmFeedback.className = 'bpm-feedback';
+                this.bpmFeedbackElement.appendChild(bpmFeedback);
+            }
+    
+            // Mettre à jour le statut
             bpmFeedback.className = `bpm-feedback ${isMatchingBpm ? 'matching' : 'not-matching'}`;
-            
-            // Mise à jour du contenu
+    
+            // Calculer la précision
+            const accuracy = Math.min(100, Math.max(0, 100 - Math.abs(targetBpm - detectedBpm)));
+    
+            // Mettre à jour le contenu
             bpmFeedback.innerHTML = `
                 <div class="detected-bpm">
-                    ${detectedBpm} BPM
+                    ${Math.round(detectedBpm)} BPM
                 </div>
                 <div class="target-info">
                     Target: ${targetBpm} BPM
@@ -289,18 +299,11 @@ window.addEventListener('appinstalled', () => {
                     <div class="fill" style="width: ${accuracy}%"></div>
                 </div>
                 <div class="status">
-                    ${isMatchingBpm ? '✅ On tempo!' : '⚠️ Adjust your tempo'}
+                    ${isMatchingBpm ? '✅ Bon tempo!' : '⚠️ Ajustez votre tempo'}
                 </div>
             `;
-        
-            // Remplacer l'ancien feedback s'il existe
-            const oldFeedback = this.bpmFeedbackElement.querySelector('.bpm-feedback');
-            if (oldFeedback) {
-                this.bpmFeedbackElement.replaceChild(bpmFeedback, oldFeedback);
-            } else {
-                this.bpmFeedbackElement.appendChild(bpmFeedback);
-            }
         });
+    
      
         window.addEventListener('training-stopped', () => {
             this.bpmFeedbackElement.textContent = 'Training Complete!';
