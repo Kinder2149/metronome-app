@@ -1,7 +1,10 @@
+import { BpmDetector } from '../core/BpmDetector';  
+
 export class TrainingEngine {
     private audioContext: AudioContext;
     private microphone: MediaStreamAudioSourceNode | null = null;
     private analyser: AnalyserNode | null = null;
+    private bpmDetector: BpmDetector | null = null;
     private clickBuffer: AudioBuffer;
     private isRunning: boolean = false;
     private startTime: number = 0;
@@ -43,7 +46,12 @@ export class TrainingEngine {
         this.isRunning = true;
 
         try {
-            // Essayez d'initialiser le microphone, mais ne le rendez pas obligatoire
+            this.bpmDetector = new BpmDetector(
+                this.audioContext,
+                this.targetBpm,
+                this.handleBpmMatch.bind(this)
+            );
+
             await this.initializeMicrophone().catch(error => {
                 console.warn('Microphone initialization failed, continuing without microphone', error);
             });
@@ -68,29 +76,49 @@ export class TrainingEngine {
     }
 
     private async initializeMicrophone(): Promise<void> {
+        if (!this.bpmDetector) return;
+
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                audio: {
-                    echoCancellation: false,
-                    autoGainControl: false,
-                    noiseSuppression: false
-                } 
-            });
-
-            this.microphone = this.audioContext.createMediaStreamSource(stream);
-            
-            this.analyser = this.audioContext.createAnalyser();
-            this.analyser.fftSize = 2048;
-            
+            this.microphone = await this.bpmDetector.initializeMicrophone();
+            this.analyser = this.bpmDetector.createAnalyserNode();
             this.microphone.connect(this.analyser);
-
-            // Démarrer l'analyse de fréquence uniquement si le microphone est disponible
-            this.startFrequencyAnalysis();
+            this.startAmplitudeAnalysis();
         } catch (error) {
             console.error('Microphone access error:', error);
             throw error;
         }
     }
+    private handleBpmMatch(isMatching: boolean, detectedBpm: number): void {
+        window.dispatchEvent(new CustomEvent('bpm-detection', {
+            detail: {
+                targetBpm: this.targetBpm,
+                detectedBpm: Math.round(detectedBpm),
+                isMatchingBpm: isMatching,
+                accuracy: Math.abs(100 - (Math.abs(this.targetBpm - detectedBpm) / this.targetBpm * 100))
+            }
+        }));
+    }
+
+    private startAmplitudeAnalysis(): void {
+        if (!this.analyser) return;
+
+        const bufferLength = this.analyser.frequencyBinCount;
+        const timeData = new Float32Array(bufferLength);
+
+        const analyze = () => {
+            if (!this.isRunning || !this.analyser || !this.bpmDetector) return;
+
+            this.analyser.getFloatTimeDomainData(timeData);
+            const amplitude = Math.max(...Array.from(timeData).map(Math.abs));
+            this.bpmDetector.processPeak(amplitude);
+
+            requestAnimationFrame(analyze);
+        };
+
+        analyze();
+    }
+
+  
     private startCountdown(): void {
         let remainingTime = this.duration;
 
@@ -139,64 +167,6 @@ export class TrainingEngine {
         playClick();
     }
 
-    private startFrequencyAnalysis(): void {
-        if (!this.analyser) return;
-
-        const bufferLength = this.analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        const analyzeFrequency = () => {
-            if (!this.isRunning || !this.analyser) return;
-
-            this.analyser.getByteFrequencyData(dataArray);
-            
-            const dominantFrequency = this.calculateDominantFrequency(dataArray);
-            const estimatedBpm = this.frequencyToBpm(dominantFrequency);
-
-            this.notifyBpmMatch(estimatedBpm);
-
-            requestAnimationFrame(analyzeFrequency);
-        };
-
-        analyzeFrequency();
-    }
-
-    private calculateDominantFrequency(dataArray: Uint8Array): number {
-        let maxAmplitude = 0;
-        let dominantIndex = 0;
-
-        for (let i = 0; i < dataArray.length; i++) {
-            if (dataArray[i] > maxAmplitude) {
-                maxAmplitude = dataArray[i];
-                dominantIndex = i;
-            }
-        }
-
-        return this.indexToFrequency(dominantIndex);
-    }
-
-    private indexToFrequency(index: number): number {
-        const nyquist = this.audioContext.sampleRate / 2;
-        return (index / this.analyser!.frequencyBinCount) * nyquist;
-    }
-
-    private frequencyToBpm(frequency: number): number {
-        return Math.round(frequency * 60 / 440);
-    }
-
-    private notifyBpmMatch(detectedBpm: number): void {
-        const tolerance = 10;
-        const isMatchingBpm = Math.abs(detectedBpm - this.targetBpm) <= tolerance;
-
-        window.dispatchEvent(new CustomEvent('bpm-detection', {
-            detail: {
-                targetBpm: this.targetBpm,
-                detectedBpm: detectedBpm,
-                isMatchingBpm: isMatchingBpm
-            }
-        }));
-    }
-
     public stop(): void {
         this.isRunning = false;
         
@@ -212,6 +182,10 @@ export class TrainingEngine {
         if (this.analyser) {
             this.analyser.disconnect();
             this.analyser = null;
+        }
+        if (this.bpmDetector) {
+            this.bpmDetector.reset();
+            this.bpmDetector = null;
         }
 
         window.dispatchEvent(new CustomEvent('training-stopped'));

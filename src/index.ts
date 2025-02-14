@@ -4,6 +4,7 @@ import { SoundEngine } from './core/SoundEngine';
 import { TrainingEngine } from './training/TrainingEngine';
 import { SongTrainingManager } from './training/SongTrainingManager';
 
+
 enum MetronomeMode {
     Classic = 'classic',
     Training = 'training'
@@ -267,6 +268,38 @@ window.addEventListener('appinstalled', () => {
             
             this.bpmFeedbackElement.innerHTML = `Time Left: ${remainingTime}s`;
             this.bpmFeedbackElement.appendChild(progressBar);
+        });
+        window.addEventListener('bpm-detection', (event: Event) => {
+            const customEvent = event as CustomEvent;
+            const { targetBpm, detectedBpm, isMatchingBpm, accuracy } = customEvent.detail;
+        
+            // Créer ou mettre à jour l'élément de feedback BPM
+            const bpmFeedback = document.createElement('div');
+            bpmFeedback.className = `bpm-feedback ${isMatchingBpm ? 'matching' : 'not-matching'}`;
+            
+            // Mise à jour du contenu
+            bpmFeedback.innerHTML = `
+                <div class="detected-bpm">
+                    ${detectedBpm} BPM
+                </div>
+                <div class="target-info">
+                    Target: ${targetBpm} BPM
+                </div>
+                <div class="accuracy-meter">
+                    <div class="fill" style="width: ${accuracy}%"></div>
+                </div>
+                <div class="status">
+                    ${isMatchingBpm ? '✅ On tempo!' : '⚠️ Adjust your tempo'}
+                </div>
+            `;
+        
+            // Remplacer l'ancien feedback s'il existe
+            const oldFeedback = this.bpmFeedbackElement.querySelector('.bpm-feedback');
+            if (oldFeedback) {
+                this.bpmFeedbackElement.replaceChild(bpmFeedback, oldFeedback);
+            } else {
+                this.bpmFeedbackElement.appendChild(bpmFeedback);
+            }
         });
      
         window.addEventListener('training-stopped', () => {
